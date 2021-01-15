@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-replica
+  namespace: django-multi-tier
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+      role: replica
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: redis
+        role: replica
+        tier: backend
+    spec:
+      containers:
+      - name: replica
+        image: gcr.io/google_samples/gb-redisslave:v2
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        env:
+        - name: GET_HOSTS_FROM
+          value: env
+        - name: REDIS_MASTER_SERVICE_HOST
+          value: redis-primary
+        ports:
+        - containerPort: 6379
